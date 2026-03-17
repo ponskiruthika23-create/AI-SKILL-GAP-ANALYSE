@@ -171,6 +171,7 @@ function submitAnswer() {
     <strong>Student:</strong> ${document.getElementById('studentName').value} <br>
     <strong>Field:</strong> ${field} <br>
     <strong>Score:</strong> ${score} / 30 <br>
+    <strong>accuracy:</strong> ${score}/10 <br>
     <strong>Cognitive Profile:</strong> ${readiness} <br>
     <strong>Missing Skills:</strong> ${keySkills.filter(skill => !answer.toLowerCase().includes(skill.toLowerCase())).join(", ")}
   `;

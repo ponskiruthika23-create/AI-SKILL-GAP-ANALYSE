@@ -1,216 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AI Skill Gap Analyzer</title>
-  <style>
-    body {
-      font-family: Arial;
-      background: #0f172a;
-      color: white;
-      text-align: center;
-    }
-
-    .page {
-      display: none;
-      padding: 20px;
-    }
-
-    .active {
-      display: block;
-    }
-
-    .card {
-      background: #1e293b;
-      padding: 20px;
-      border-radius: 10px;
-      width: 80%;
-      margin: auto;
-    }
-
-    input, textarea, select {
-      width: 80%;
-      padding: 10px;
-      margin: 10px;
-      border-radius: 5px;
-      border: none;
-    }
-
-    button {
-      padding: 10px 20px;
-      background: #38bdf8;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mudhalvan AI Skill Gap Prototype</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f6fa;
+    padding: 20px;
+}
+h1, h2 { text-align:center; color:#2c3e50;}
+.container { max-width: 800px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+.step { display:none; }
+input, select, button { padding:10px; margin:5px 0; width:100%; border-radius:5px; border:1px solid #ccc;}
+button { background:#3498db; color:#fff; border:none; cursor:pointer;}
+button:hover { background:#2980b9;}
+.list-item { background:#ecf0f1; margin:5px 0; padding:5px 10px; border-radius:5px;}
+</style>
 </head>
-
 <body>
+<div class="container">
+<h1>Mudhalvan AI Skill Gap Prototype</h1>
 
-<h1>🚀 AI Skill Gap Analyzer</h1>
-
-<!-- PAGE 1 -->
-<div id="page1" class="page active">
-  <div class="card">
-    <h2>Enter Details</h2>
-    <input id="name" placeholder="Enter Name"><br>
-    <input id="skills" placeholder="Enter Skills"><br>
-
-    <select id="field">
-      <option>EV Ecosystem</option>
-      <option>Automotive</option>
-    </select><br>
-
-    <button onclick="startTest()">Start Test</button>
-  </div>
+<!-- Step 1: Student Info -->
+<div class="step" id="step1" style="display:block;">
+<h2>Step 1: Enter Your Name</h2>
+<input type="text" id="studentName" placeholder="Enter your name">
+<button onclick="nextStep(1)">Next</button>
 </div>
 
-<!-- PAGE 2 -->
-<div id="page2" class="page">
-  <div class="card">
-    <h2>⚡ Scenario Test</h2>
-    <p>What will you do if EV battery overheats?</p>
-
-    <textarea id="answer"></textarea><br>
-
-    <p id="timer">Time: 30</p>
-
-    <button onclick="submitAnswer()">Submit</button>
-  </div>
+<!-- Step 2: Skills Input -->
+<div class="step" id="step2">
+<h2>Step 2: Enter Your Skills (comma separated)</h2>
+<input type="text" id="studentSkills" placeholder="e.g., CAD, MATLAB, EV Systems">
+<button onclick="nextStep(2)">Next</button>
 </div>
 
-<!-- PAGE 3 -->
-<div id="page3" class="page">
-  <div class="card" id="output"></div>
+<!-- Step 3: Field Selection -->
+<div class="step" id="step3">
+<h2>Step 3: Choose Your Desired Field</h2>
+<select id="studentField">
+    <option value="">Select Field</option>
+    <option value="automotive">Automotive Manufacturing</option>
+    <option value="ev">EV Ecosystem</option>
+</select>
+<button onclick="nextStep(3)">Next</button>
+</div>
+
+<!-- Step 4: Skill Gap & Cognitive Profile -->
+<div class="step" id="step4">
+<h2>Step 4: Skill Gap Analysis & Cognitive Profile</h2>
+<div id="skillGap"></div>
+<div id="cognitiveProfile"></div>
+<div id="recommendedSkills"></div>
+<div id="learningPath"></div>
+<div id="recommendedCompanies"></div>
+</div>
+
 </div>
 
 <script>
+// Mock industry-required skills
+const industrySkills = {
+    automotive: ['CAD', 'SolidWorks', 'Material Science', 'Manufacturing Process', 'Quality Control', 'PLC', 'Lean Manufacturing', '3D Printing', 'Automation', 'Thermal Analysis'],
+    ev: ['Battery Management', 'Power Electronics', 'Motor Design', 'Control Systems', 'EV Charging', 'Battery Safety', 'Simulation', 'Embedded Systems', 'Energy Storage', 'IoT for EV']
+};
 
-let timeLeft = 30;
-let timer;
-let startTime;
-let attempts = 1;
-let isCorrect = false;
+// Mock Learning Paths & YouTube links
+const learningLinks = {
+    'CAD': 'https://www.youtube.com/watch?v=CAD_tutorial',
+    'SolidWorks': 'https://www.youtube.com/watch?v=SolidWorks_tutorial',
+    'Battery Management': 'https://www.youtube.com/watch?v=Battery_tutorial',
+    'Control Systems': 'https://www.youtube.com/watch?v=ControlSystems_tutorial',
+    'Manufacturing Process': 'https://www.youtube.com/watch?v=Manufacturing_tutorial'
+};
 
-// 🔄 Page Switch
-function showPage(pageId) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.getElementById(pageId).classList.add("active");
-}
+// Mock companies
+const companies = {
+    automotive: ['Tata Motors', 'Mahindra', 'Maruti Suzuki'],
+    ev: ['Ather Energy', 'Ola Electric', 'Tork Motors']
+};
 
-// 🚀 Start Test
-function startTest() {
-  showPage("page2");
-
-  startTime = new Date().getTime();
-
-  timer = setInterval(() => {
-    timeLeft--;
-    document.getElementById("timer").innerText = "Time: " + timeLeft;
-
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      submitAnswer();
+// Step navigation
+function nextStep(current) {
+    document.getElementById(step${current}).style.display = 'none';
+    const next = current + 1;
+    if(next <= 4) {
+        document.getElementById(step${next}).style.display = 'block';
+        if(next === 4) generateResults();
     }
-  }, 1000);
 }
 
-// 🎯 Submit Answer
-function submitAnswer() {
-  clearInterval(timer);
+// Generate Skill Gap, Cognitive Profile, Recommendations
+function generateResults() {
+    const name = document.getElementById('studentName').value.trim();
+    const skills = document.getElementById('studentSkills').value.split(',').map(s => s.trim());
+    const field = document.getElementById('studentField').value;
 
-  let endTime = new Date().getTime();
-  let timeTaken = Math.floor((endTime - startTime) / 1000);
+    const requiredSkills = industrySkills[field];
+    const missingSkills = requiredSkills.filter(skill => !skills.includes(skill));
 
-  let answer = document.getElementById("answer").value;
+    // Skill Gap Display
+    let skillHtml = <h3>Hello ${name}</h3>;
+    skillHtml += <p><strong>Your entered skills:</strong> ${skills.join(', ')}</p>;
+    skillHtml += <p><strong>Missing Skills for ${field === 'automotive' ? 'Automotive' : 'EV'}:</strong></p><ul>;
+    missingSkills.forEach(skill => skillHtml += <li class="list-item">${skill}</li>);
+    skillHtml += </ul>;
+    document.getElementById('skillGap').innerHTML = skillHtml;
 
-  checkAnswer(answer, timeTaken);
+    // Cognitive Profile (mock scoring)
+    const score = Math.floor((skills.length / requiredSkills.length) * 100);
+    let profile = '';
+    if(score >= 70) profile = 'High cognitive readiness';
+    else if(score >= 50) profile = 'Moderate cognitive readiness';
+    else profile = 'Needs improvement';
+    document.getElementById('cognitiveProfile').innerHTML = <h3>Cognitive Profile:</h3><p>Score: ${score}% - ${profile}</p>;
+
+    // Recommended Skills + Learning Links
+    let recSkillsHtml = <h3>Recommended Skills & Learning Links:</h3><ul>;
+    missingSkills.forEach(skill => {
+        const link = learningLinks[skill] ? <a href="${learningLinks[skill]}" target="_blank">Tutorial</a> : '';
+        recSkillsHtml += <li class="list-item">${skill} ${link}</li>;
+    });
+    recSkillsHtml += '</ul>';
+    document.getElementById('recommendedSkills').innerHTML = recSkillsHtml;
+
+    // Recommended Companies
+    let compHtml = <h3>Recommended Companies:</h3><ul>;
+    companies[field].forEach(c => compHtml += <li class="list-item">${c}</li>);
+    compHtml += '</ul>';
+    document.getElementById('recommendedCompanies').innerHTML = compHtml;
 }
-
-// ✅ Check Answer
-function checkAnswer(answer, timeTaken) {
-
-  let keywords = ["battery", "cooling", "temperature"];
-  let score = 0;
-
-  keywords.forEach(word => {
-    if (answer.toLowerCase().includes(word)) score++;
-  });
-
-  isCorrect = score >= 2;
-
-  generateResult(answer, timeTaken);
-}
-
-// 🧠 Cognitive Profile
-function generateCognitiveProfile(answer, timeTaken, correct, attempts) {
-
-  let depth = answer.length > 100 ? 30 : answer.length > 50 ? 20 : 10;
-  let speed = timeTaken <= 10 ? 30 : timeTaken <= 20 ? 20 : 10;
-  let accuracy = correct ? 30 : 10;
-  let consistency = (attempts === 1 && correct) ? 30 : 20;
-
-  let type = (depth >= 20 && consistency >= 20) ? "Analytical Thinker"
-           : (speed >= 25) ? "Fast Responder"
-           : "Developing Learner";
-
-  let decision = correct ? "Smart Decision Maker" : "Needs Improvement";
-
-  return { type, depth, speed, accuracy, consistency, decision };
-}
-
-// 🏆 Recommendation
-function getRecommendation(score) {
-
-  if (score >= 80) {
-    return `
-    <h3>🚀 Ready for EV Industry</h3>
-    <p>Companies: Tesla, Tata Motors EV, Ola Electric</p>
-    `;
-  } else if (score >= 50) {
-    return `
-    <h3>⚡ Almost Ready</h3>
-    <p>Improve core EV skills</p>
-    `;
-  } else {
-    return `
-    <h3>📚 Not Ready</h3>
-    <p>Learn EV fundamentals</p>
-    `;
-  }
-}
-
-// 📊 Final Result
-function generateResult(answer, timeTaken) {
-
-  showPage("page3");
-
-  let finalScore = isCorrect ? 80 : 40;
-
-  let cog = generateCognitiveProfile(answer, timeTaken, isCorrect, attempts);
-
-  document.getElementById("output").innerHTML = `
-    <h2>📊 Final Result</h2>
-
-    <p><b>Score:</b> ${finalScore}%</p>
-
-    <h3>🧠 Cognitive Profile</h3>
-    <p>Type: ${cog.type}</p>
-    <p>Depth: ${cog.depth}%</p>
-    <p>Speed: ${cog.speed}%</p>
-    <p>Accuracy: ${cog.accuracy}%</p>
-    <p>Consistency: ${cog.consistency}%</p>
-    <p>Decision: ${cog.decision}</p>
-
-    ${getRecommendation(finalScore)}
-  `;
-}
-
-// ❌ Disable Copy/Paste
-document.addEventListener("copy", e => e.preventDefault());
-document.addEventListener("paste", e => e.preventDefault());
-
 </script>
-
 </body>
 </html>

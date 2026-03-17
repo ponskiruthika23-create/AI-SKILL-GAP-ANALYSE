@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Skill Gap Analyzer</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+
+    .page {
+      display: none;
+      padding: 20px;
+    }
+
+    .active {
+      display: block;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      margin: auto;
+    }
+
+    input, textarea, select {
+      width: 80%;
+      padding: 10px;
+      margin: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #38bdf8;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🚀 AI Skill Gap Analyzer</h1>
+
+<!-- PAGE 1 -->
+<div id="page1" class="page active">
+  <div class="card">
+    <h2>Enter Details</h2>
+    <input id="name" placeholder="Enter Name"><br>
+    <input id="skills" placeholder="Enter Skills"><br>
+
+    <select id="field">
+      <option>EV Ecosystem</option>
+      <option>Automotive</option>
+    </select><br>
+
+    <button onclick="startTest()">Start Test</button>
+  </div>
+</div>
+
+<!-- PAGE 2 -->
+<div id="page2" class="page">
+  <div class="card">
+    <h2>⚡ Scenario Test</h2>
+    <p>What will you do if EV battery overheats?</p>
+
+    <textarea id="answer"></textarea><br>
+
+    <p id="timer">Time: 30</p>
+
+    <button onclick="submitAnswer()">Submit</button>
+  </div>
+</div>
+
+<!-- PAGE 3 -->
+<div id="page3" class="page">
+  <div class="card" id="output"></div>
+</div>
+
+<script>
+
+let timeLeft = 30;
+let timer;
+let startTime;
+let attempts = 1;
+let isCorrect = false;
+
+// 🔄 Page Switch
+function showPage(pageId) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(pageId).classList.add("active");
+}
+
+// 🚀 Start Test
+function startTest() {
+  showPage("page2");
+
+  startTime = new Date().getTime();
+
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").innerText = "Time: " + timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      submitAnswer();
+    }
+  }, 1000);
+}
+
+// 🎯 Submit Answer
+function submitAnswer() {
+  clearInterval(timer);
+
+  let endTime = new Date().getTime();
+  let timeTaken = Math.floor((endTime - startTime) / 1000);
+
+  let answer = document.getElementById("answer").value;
+
+  checkAnswer(answer, timeTaken);
+}
+
+// ✅ Check Answer
+function checkAnswer(answer, timeTaken) {
+
+  let keywords = ["battery", "cooling", "temperature"];
+  let score = 0;
+
+  keywords.forEach(word => {
+    if (answer.toLowerCase().includes(word)) score++;
+  });
+
+  isCorrect = score >= 2;
+
+  generateResult(answer, timeTaken);
+}
+
+// 🧠 Cognitive Profile
+function generateCognitiveProfile(answer, timeTaken, correct, attempts) {
+
+  let depth = answer.length > 100 ? 30 : answer.length > 50 ? 20 : 10;
+  let speed = timeTaken <= 10 ? 30 : timeTaken <= 20 ? 20 : 10;
+  let accuracy = correct ? 30 : 10;
+  let consistency = (attempts === 1 && correct) ? 30 : 20;
+
+  let type = (depth >= 20 && consistency >= 20) ? "Analytical Thinker"
+           : (speed >= 25) ? "Fast Responder"
+           : "Developing Learner";
+
+  let decision = correct ? "Smart Decision Maker" : "Needs Improvement";
+
+  return { type, depth, speed, accuracy, consistency, decision };
+}
+
+// 🏆 Recommendation
+function getRecommendation(score) {
+
+  if (score >= 80) {
+    return `
+    <h3>🚀 Ready for EV Industry</h3>
+    <p>Companies: Tesla, Tata Motors EV, Ola Electric</p>
+    `;
+  } else if (score >= 50) {
+    return `
+    <h3>⚡ Almost Ready</h3>
+    <p>Improve core EV skills</p>
+    `;
+  } else {
+    return `
+    <h3>📚 Not Ready</h3>
+    <p>Learn EV fundamentals</p>
+    `;
+  }
+}
+
+// 📊 Final Result
+function generateResult(answer, timeTaken) {
+
+  showPage("page3");
+
+  let finalScore = isCorrect ? 80 : 40;
+
+  let cog = generateCognitiveProfile(answer, timeTaken, isCorrect, attempts);
+
+  document.getElementById("output").innerHTML = `
+    <h2>📊 Final Result</h2>
+
+    <p><b>Score:</b> ${finalScore}%</p>
+
+    <h3>🧠 Cognitive Profile</h3>
+    <p>Type: ${cog.type}</p>
+    <p>Depth: ${cog.depth}%</p>
+    <p>Speed: ${cog.speed}%</p>
+    <p>Accuracy: ${cog.accuracy}%</p>
+    <p>Consistency: ${cog.consistency}%</p>
+    <p>Decision: ${cog.decision}</p>
+
+    ${getRecommendation(finalScore)}
+  `;
+}
+
+// ❌ Disable Copy/Paste
+document.addEventListener("copy", e => e.preventDefault());
+document.addEventListener("paste", e => e.preventDefault());
+
+</script>
+
+</body>
+</html>
